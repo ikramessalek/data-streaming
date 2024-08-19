@@ -4,11 +4,18 @@ import logging
 import threading
 from kafka import KafkaConsumer
 
+<<<<<<< HEAD
 # Configuration Kafka
 KAFKA_BROKER = 'localhost:9092'
 NEWS_TOPIC = 'news_topic'
 KPI_TOPIC = 'kpi_topic'
 REDDIT_TOPIC = 'reddit_comments'
+=======
+# Configuration
+KAFKA_BROKER = 'localhost:9092'
+NEWS_TOPIC = 'news_topic'
+KPI_TOPIC = 'kpi_topic'
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
 DATABASE = 'data.db'
 
 # Configure logging
@@ -29,6 +36,7 @@ kpi_consumer = KafkaConsumer(
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
 
+<<<<<<< HEAD
 reddit_consumer = KafkaConsumer(
     REDDIT_TOPIC,
     bootstrap_servers=[KAFKA_BROKER],
@@ -37,6 +45,8 @@ reddit_consumer = KafkaConsumer(
 )
 
 # Fonction pour initialiser la base de données
+=======
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
 def init_db():
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
@@ -54,7 +64,11 @@ def init_db():
             )
         ''')
 
+<<<<<<< HEAD
         # Création de la table kpis
+=======
+        # Création de la table kpi
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS kpis (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,6 +82,7 @@ def init_db():
             )
         ''')
 
+<<<<<<< HEAD
         # Création de la table comments
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS comments (
@@ -83,6 +98,11 @@ def init_db():
         logging.info("Base de données initialisée.")
 
 # Fonction pour insérer des actualités dans la base de données
+=======
+        conn.commit()
+        logging.info("Base de données initialisée.")
+
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
 def insert_news_into_db(article):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
@@ -100,8 +120,13 @@ def insert_news_into_db(article):
         conn.commit()
         logging.info("Article inséré dans la base de données: %s", article['title'])
 
+<<<<<<< HEAD
 # Fonction pour stocker les KPIs dans la base de données
 def store_kpi(kpi):
+=======
+def store_kpi(kpi):
+    logging.debug("Storing KPI in database: %s", kpi)
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
         cursor.execute('''
@@ -119,6 +144,7 @@ def store_kpi(kpi):
         conn.commit()
         logging.info("KPI stocké dans la base de données: %s", kpi)
 
+<<<<<<< HEAD
 # Fonction pour stocker les commentaires Reddit dans la base de données
 def store_reddit_comments(comment):
     with sqlite3.connect(DATABASE) as conn:
@@ -140,21 +166,35 @@ def consume_news():
     logging.info("Consommation des messages de 'news_topic'...")
     for message in news_consumer:
         logging.info("Message brut reçu: %s", message.value)
+=======
+def consume_news():
+    logging.info("Consuming messages from 'news_topic'...")
+    for message in news_consumer:
+        logging.info("Raw message received: %s", message.value)
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
         try:
             article = message.value
             insert_news_into_db(article)
         except Exception as e:
+<<<<<<< HEAD
             logging.error("Erreur lors de l'insertion de l'article dans la base de données: %s", str(e))
 
 # Consommateur de KPIs
 def consume_kpis():
     logging.info("Consommation des messages de 'kpi_topic'...")
+=======
+            logging.error("Error inserting article into database: %s", str(e))
+
+def consume_kpis():
+    logging.info("Consuming messages from 'kpi_topic'...")
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
     for message in kpi_consumer:
         logging.debug("Message reçu: %s", message.value)
         try:
             kpi = message.value
             store_kpi(kpi)
         except Exception as e:
+<<<<<<< HEAD
             logging.error("Erreur lors de l'insertion du KPI dans la base de données: %s", str(e))
 
 # Consommateur de commentaires Reddit
@@ -181,10 +221,27 @@ if __name__ == "__main__":
     news_thread.start()
     kpi_thread.start()
     reddit_thread.start()
+=======
+            logging.error("Error inserting KPI into database: %s", str(e))
+
+if __name__ == "__main__":
+    init_db()
+    logging.info("Kafka consumers started.")
+
+    # Démarrage des threads pour consommer les messages des deux topics
+    news_thread = threading.Thread(target=consume_news)
+    kpi_thread = threading.Thread(target=consume_kpis)
+
+    news_thread.start()
+    kpi_thread.start()
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
 
     # Assurez-vous que les threads continuent à s'exécuter
     news_thread.join()
     kpi_thread.join()
+<<<<<<< HEAD
     reddit_thread.join()
+=======
+>>>>>>> 8cf87c3ec2fae89642cc348e311cb7ccace931b3
 
 
