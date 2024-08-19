@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Couleur de fond */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 4em; /* Taille de police plus grande */
+            color: #2a6f7a; /* Couleur du texte */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Ombre portée */
+            margin-bottom: 20px;
+            font-family: 'Arial Black', Arial, sans-serif; /* Police audacieuse */
+            background: linear-gradient(to right, #2a6f7a, #4caf50); /* Dégradé */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideIn 1s ease-out;
+        }
+        h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        h3 {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            border-radius: 5px;
+        }
+        .button.blue {
+            color: #ffffff; /* Couleur du texte */
+            background-color: #2a6f7a; /* Couleur de fond */
+            border: 2px solid #2a6f7a; /* Bordure */
+        }
+        .button.blue::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 2px dashed #2a6f7a;
+        }
+        .button.yellow {
+            color: #ffffff; /* Couleur du texte */
+            background-color: #f7d35b; /* Couleur de fond */
+            border: 2px solid #f7d35b; /* Bordure */
+        }
+        .button.yellow::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 2px dashed #f7d35b;
+        }
+        .button.green {
+            color: #ffffff; /* Couleur du texte */
+            background-color: #4caf50; /* Couleur de fond */
+            border: 2px solid #4caf50; /* Bordure */
+        }
+        .button.green::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border: 2px dashed #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue sur notre système de distribution des données</h1>
+        <h2>Ce système vous permet de naviguer vers différentes sections pour accéder à la distribution des données.</h2>
+        <h3>Sélectionnez une section pour obtenir les informations souhaitées.</h3>
+        <a href="/news" class="button blue">Nouvelles</a>
+        <a href="/kpi" class="button yellow">Données financières</a>
+        <a href="/comment" class="button green">Avis et commentaires</a>
+    </div>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commentaires</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #4caf50, #f8f9fa); /* Dégradé de fond */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #ffffff;
+        }
+        form {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff; /* Couleur de fond du formulaire */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            color: #4caf50;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        select, input[type="date"], input[type="text"] {
+            margin: 5px 0 15px;
+            padding: 10px;
+            border: 2px solid #4caf50;
+            border-radius: 5px;
+            background-color: #f0f8ff; /* Couleur plus claire */
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            border-radius: 5px;
+            color: #ffffff; /* Couleur du texte */
+            background: linear-gradient(to right, #4caf50, #388e3c); /* Dégradé de fond du bouton */
+            border: 2px solid #4caf50; /* Bordure du bouton */
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(to right, #388e3c, #4caf50); /* Dégradé inversé au survol */
+        }
+        #error-message {
+            color: red; /* Couleur du texte pour les messages d'erreur */
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Filtrer les Commentaires</h1>
+    <form id="filter-form">
+        <label for="submission_url">URL:</label>
+        <input type="text" id="submission_url" name="submission_url">
+        
+        <label for="start_date">Date de début:</label>
+        <input type="date" id="start_date" name="start_date">
+        
+        <label for="end_date">Date de fin:</label>
+        <input type="date" id="end_date" name="end_date">
+        
+        <label for="keyword">Mot-clé:</label>
+        <input type="text" id="keyword" name="keyword">
+        
+        <button type="button" id="download-button">Télécharger CSV</button>
+    </form>
+    <script>
+        document.getElementById('download-button').addEventListener('click', function() {
+            const submissionURL = encodeURIComponent(document.getElementById('submission_url').value);
+            const startDate = encodeURIComponent(document.getElementById('start_date').value);
+            const endDate = encodeURIComponent(document.getElementById('end_date').value);
+            const keyword = encodeURIComponent(document.getElementById('keyword').value);
+
+            window.location.href = `/download-comments?submission_url=${submissionURL}&start_date=${startDate}&end_date=${endDate}&keyword=${keyword}`;
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger les KPIs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #f7d35b, #f8f9fa); /* Dégradé de fond */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #2a6f7a;
+        }
+        form {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff; /* Couleur de fond du formulaire */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            color: #2a6f7a;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        select, input[type="date"] {
+            margin: 5px 0 15px;
+            padding: 10px;
+            border: 2px solid #f7d35b;
+            border-radius: 5px;
+            background-color: #fff; /* Couleur de fond des champs */
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            border-radius: 5px;
+            color: #ffffff; /* Couleur du texte */
+            background: linear-gradient(to right, #f7d35b, #f7b932); /* Dégradé de fond du bouton */
+            border: 2px solid #f7d35b; /* Bordure du bouton */
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(to right, #f7b932, #f7d35b); /* Dégradé inversé au survol */
+        }
+    </style>
+</head>
+<body>
+    <h1>Filtrer les Données financières</h1>
+    <form id="filter-form">
+        <label for="company">Nom de l'entreprise:</label>
+        <select id="company" name="company">
+            <option value="">Sélectionner une entreprise</option>
+            <!-- Les options seront ajoutées dynamiquement -->
+        </select>
+        
+        <label for="start_date">Date de début:</label>
+        <input type="date" id="start_date" name="start_date">
+        
+        <label for="end_date">Date de fin:</label>
+        <input type="date" id="end_date" name="end_date">
+        
+        <button type="button" id="download-button">Télécharger CSV</button>
+    </form>
+    <script>
+        // Fonction pour récupérer les entreprises
+        function loadCompanies() {
+            fetch('/test_companies')
+                .then(response => response.json())
+                .then(data => {
+                    const companySelect = document.getElementById('company');
+                    companySelect.innerHTML = '<option value="">Sélectionner une entreprise</option>';
+                    data.forEach(company => {
+                        const option = document.createElement('option');
+                        option.value = company.company_name;
+                        option.textContent = company.company_name;
+                        companySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des entreprises :', error);
+                });
+        }
+
+        // Appel de la fonction pour charger les entreprises au chargement de la page
+        document.addEventListener('DOMContentLoaded', loadCompanies);
+
+        // Fonction pour télécharger les KPIs en CSV
+        document.getElementById('download-button').addEventListener('click', function() {
+            const company = document.getElementById('company').value;
+            const start_date = document.getElementById('start_date').value;
+            const end_date = document.getElementById('end_date').value;
+
+            fetch(`/api/kpis?company=${company}&start_date=${start_date}&end_date=${end_date}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(`Erreur lors de la récupération des KPIs : ${data.error}`);
+                        return;
+                    }
+
+                    // Convertir les données en CSV
+                    const csvContent = "data:text/csv;charset=utf-8,"
+                        + "Nom de l'entreprise,Date,Ouverture,Hauteur,Bas,Clôture,Volume\n"
+                        + data.map(kpi => [
+                            kpi.company_name,
+                            kpi.date,
+                            kpi.open,
+                            kpi.high,
+                            kpi.low,
+                            kpi.close,
+                            kpi.volume
+                        ].join(',')).join('\n');
+
+                    // Créer un lien pour le téléchargement du CSV
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'kpis.csv');
+                    document.body.appendChild(link); // Requis pour Firefox
+
+                    link.click();
+                    document.body.removeChild(link); // Nettoyer
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de la récupération des KPIs.');
+                });
+        });
+    </script>
+</body>
+</html>
+
+

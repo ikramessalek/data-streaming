@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Nouvelles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #2a6f7a, #f8f9fa); /* Dégradé de fond */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #ffff;
+        }
+        form {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff; /* Couleur de fond du formulaire */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            color: #2a6f7a;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        select, input[type="date"], input[type="text"] {
+            margin: 5px 0 15px;
+            padding: 10px;
+            border: 2px solid #2a6f7a;
+            border-radius: 5px;
+            background-color: #f0f8ff; /* Couleur plus claire */
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            position: relative;
+            border-radius: 5px;
+            color: #ffffff; /* Couleur du texte */
+            background: linear-gradient(to right, #2a6f7a, #1f4e5f); /* Dégradé de fond du bouton */
+            border: 2px solid #2a6f7a; /* Bordure du bouton */
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(to right, #1f4e5f, #2a6f7a); /* Dégradé inversé au survol */
+        }
+        #error-message {
+            color: red; /* Couleur du texte pour les messages d'erreur */
+            margin: 10px 0;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchOptions('/api/sources', 'source-filter');
+            fetchOptions('/api/authors', 'author-filter');
+
+            document.getElementById('filter-button').addEventListener('click', downloadCSV);
+        });
+
+        async function fetchOptions(url, selectId) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const selectElement = document.getElementById(selectId);
+                    if (selectElement) {
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item;
+                            option.textContent = item;
+                            selectElement.appendChild(option);
+                        });
+                    }
+                } else {
+                    console.error(`Erreur lors de la récupération des options de ${selectId}:`, data.error);
+                }
+            } catch (error) {
+                console.error(`Erreur lors de la récupération des options de ${selectId}:`, error);
+            }
+        }
+
+        function downloadCSV() {
+            const author = document.getElementById('author-filter').value;
+            const source = document.getElementById('source-filter').value;
+            const dateStart = document.getElementById('date-start-filter').value;
+            const dateEnd = document.getElementById('date-end-filter').value;
+            const keyword = document.getElementById('keyword-filter').value.trim(); // Mot-clé ajouté
+
+            const queryParams = new URLSearchParams({
+                author: author,
+                source: source,
+                date_start: dateStart,
+                date_end: dateEnd,
+                keyword: keyword // Ajout du mot-clé aux paramètres de la requête
+            }).toString();
+
+            fetch(`/api/news?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    const errorMessage = document.getElementById('error-message');
+                    if (data.message) {
+                        errorMessage.textContent = data.message;
+                    } else {
+                        errorMessage.textContent = ''; // Clear previous error message
+                        if (data.length > 0) {
+                            const csv = convertToCSV(data);
+                            downloadFile(csv, 'news_data.csv');
+                        } else {
+                            errorMessage.textContent = 'Aucune donnée à télécharger.';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des nouvelles pour CSV:', error);
+                    document.getElementById('error-message').textContent = 'Erreur lors de la récupération des nouvelles.';
+                });
+        }
+
+        function convertToCSV(data) {
+            const header = ['title', 'description', 'url', 'published_at', 'source_name', 'author'];
+            const rows = data.map(row => header.map(fieldName => JSON.stringify(row[fieldName], replacer)).join(','));
+            return [header.join(','), ...rows].join('\r\n');
+        }
+
+        function replacer(key, value) {
+            return value === null ? '' : value;
+        }
+
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</head>
+<body>
+    <h1>Télécharger les Nouvelles en CSV</h1>
+
+    <form id="filter-form">
+        <label for="keyword-filter">Chercher:</label>
+        <input type="text" id="keyword-filter" placeholder="Entrez un mot-clé">
+
+        <label for="source-filter">Source:</label>
+        <select id="source-filter">
+            <option value="">Sélectionner une source</option>
+        </select>
+        
+        <label for="author-filter">Auteur:</label>
+        <select id="author-filter">
+            <option value="">Sélectionner un auteur</option>
+        </select>
+        
+        <label for="date-start-filter">Date de début:</label>
+        <input type="date" id="date-start-filter">
+        
+        <label for="date-end-filter">Date de fin:</label>
+        <input type="date" id="date-end-filter">
+        
+        <button id="filter-button" type="button">Télécharger CSV</button>
+        <div id="error-message"></div> <!-- Element to display error messages -->
+    </form>
+</body>
+</html>
+
+
